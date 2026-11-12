@@ -1,0 +1,6 @@
+# Виртуалната среда не влиза в Git — възстановява се от requirements.txt
+.venv/
+
+# Python
+__pycache__/
+*.pyc
