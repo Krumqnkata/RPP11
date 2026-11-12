@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Работните данни на програмата — всеки си има собствен списък
+data/zadachi.txt
+data/zadachi_povredeni.txt
