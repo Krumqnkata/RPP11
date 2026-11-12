@@ -19,7 +19,20 @@ STUDENTS = {
 
 def subject_average(student: dict, subject: str):
     """Среден успех по предмет. None, ако предметът липсва или няма оценки."""
-    raise NotImplementedError
+    grades = student.get(subject)
+    if not grades:
+        return None
+    return sum(grades) / len(grades)
+
+
+def subject_averages(student: dict) -> dict:
+    """Речник {предмет: среден успех} само за предметите с поне една оценка."""
+    averages = {}
+    for subject in student:
+        average = subject_average(student, subject)
+        if average is not None:
+            averages[subject] = average
+    return averages
 
 
 def overall_average(student: dict):
@@ -27,7 +40,10 @@ def overall_average(student: dict):
 
     Предмети без оценки не участват. None, ако ученикът няма нито една оценка.
     """
-    raise NotImplementedError
+    averages = subject_averages(student)
+    if not averages:
+        return None
+    return sum(averages.values()) / len(averages)
 
 
 def weakest_subject(student: dict):
@@ -35,7 +51,10 @@ def weakest_subject(student: dict):
 
     При равенство — първият по азбучен ред.
     """
-    raise NotImplementedError
+    averages = subject_averages(student)
+    if not averages:
+        return None
+    return min(averages, key=lambda subject: (averages[subject], subject))
 
 
 def class_ranking(students: dict) -> list:
@@ -44,7 +63,16 @@ def class_ranking(students: dict) -> list:
     Учениците без оценки са накрая (с успех None), подредени по азбучен ред.
     При равен успех — по азбучен ред на името.
     """
-    raise NotImplementedError
+    with_grades, without_grades = [], []
+    for name, student in students.items():
+        average = overall_average(student)
+        if average is None:
+            without_grades.append((name, None))
+        else:
+            with_grades.append((name, average))
+    with_grades.sort(key=lambda pair: (-pair[1], pair[0]))
+    without_grades.sort()
+    return with_grades + without_grades
 
 
 def at_risk(students: dict, threshold: float = 3.50) -> list:
@@ -52,11 +80,41 @@ def at_risk(students: dict, threshold: float = 3.50) -> list:
 
     Ученици без оценки не се включват — за тях няма данни.
     """
-    raise NotImplementedError
+    names = []
+    for name, student in students.items():
+        average = overall_average(student)
+        if average is not None and average < threshold:
+            names.append(name)
+    return sorted(names)
 
 
 if __name__ == "__main__":
-    # Напишете тук поне 8 проверки, например:
-    # assert subject_average(STUDENTS["Ани"], "история") == 6
-    # assert subject_average(STUDENTS["Георги"], "история") is None
-    pass
+    ani, vera, georgi = STUDENTS["Ани"], STUDENTS["Вера"], STUDENTS["Георги"]
+
+    # subject_average
+    assert subject_average(ani, "история") == 6
+    assert subject_average(georgi, "история") is None      # ученик без предмети
+    assert subject_average(vera, "история") is None        # предмет без оценки
+    assert subject_average(ani, "химия") is None           # липсващ предмет
+
+    # overall_average: средно на средните, а не на всички оценки
+    assert abs(overall_average(ani) - (17 / 3 + 5.5 + 6) / 3) < 1e-9
+    assert overall_average(vera) == 5.5                    # историята не участва
+    assert overall_average(georgi) is None
+
+    # weakest_subject
+    assert weakest_subject(STUDENTS["Борис"]) == "български"   # равенство -> азбучен ред
+    assert weakest_subject(georgi) is None
+
+    # class_ranking
+    ranking = class_ranking(STUDENTS)
+    assert [name for name, _ in ranking] == ["Ани", "Вера", "Борис", "Диана", "Георги"]
+    assert ranking[-1] == ("Георги", None)
+    assert class_ranking({}) == []
+
+    # at_risk
+    assert at_risk(STUDENTS) == ["Борис", "Диана"]
+    assert at_risk(STUDENTS, threshold=3.0) == []          # точно на прага не е в риск
+    assert at_risk({}) == []
+
+    print("Всички 15 проверки минаха.")
