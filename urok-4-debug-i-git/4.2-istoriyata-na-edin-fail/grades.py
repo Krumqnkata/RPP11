@@ -20,6 +20,20 @@ def average(grades):
     return total / len(grades)
 
 
+def median(grades):
+    """Медианата на оценките — средната по големина. None, ако няма оценки.
+
+    При четен брой оценки е средното на двете в средата.
+    """
+    if not grades:
+        return None
+    ordered = sorted(grades)
+    middle = len(ordered) // 2
+    if len(ordered) % 2 == 1:
+        return ordered[middle]
+    return (ordered[middle - 1] + ordered[middle]) / 2
+
+
 def is_excellent(avg):
     """True, ако успехът е отличен (от 5.50 нагоре). Без оценки — False."""
     return avg is not None and avg >= EXCELLENT_FROM
@@ -65,6 +79,7 @@ def print_report(students):
         print("Среден успех на класа: няма оценки")
     else:
         print(f"Среден успех на класа: {class_average:.2f}")
+        print(f"Медиана на оценките в класа: {median(all_grades)}")
     print(f"Брой отличници: {excellent_count}")
 
 
