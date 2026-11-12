@@ -17,7 +17,7 @@ def average(grades):
     total = 0
     for g in grades:
         total += g
-    return total / len(grades)
+    return total / (len(grades) - 1)
 
 
 def median(grades):
