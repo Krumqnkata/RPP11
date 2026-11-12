@@ -1,0 +1,39 @@
+СРАВНЕНИЕ: глобален Python срещу виртуална среда
+Редовете, които се различават, са отбелязани с <<<
+
+--- 1) Глобален Python:  python env_check.py ---
+====================================================
+ДОКЛАД ЗА СРЕДАТА
+====================================================
+Версия на Python : 3.12.10
+Изпълним файл    : C:\Users\Krum\AppData\Local\Programs\Python\Python312\python.exe   <<<
+Базов префикс    : C:\Users\Krum\AppData\Local\Programs\Python\Python312
+Текущ префикс    : C:\Users\Krum\AppData\Local\Programs\Python\Python312   <<<
+Работна папка    : E:\Projects\School\Programirane-RPP-Bonev\RPP11
+Папка с пакети   : C:\Users\Krum\AppData\Local\Programs\Python\Python312   <<<
+Папка с пакети   : C:\Users\Krum\AppData\Local\Programs\Python\Python312\Lib\site-packages   <<<
+Брой пакети      : 212   <<<
+----------------------------------------------------
+СТАТУС: ГЛОБАЛЕН PYTHON — внимавай какво инсталираш!   <<<
+ВНИМАНИЕ: НЕ СИ ВЪВ ВИРТУАЛНА СРЕДА! АКТИВИРАЙ .venv ПРЕДИ pip install.   <<<
+====================================================
+
+--- 2) От активирана среда (.venv в корена на хранилището) ---
+====================================================
+ДОКЛАД ЗА СРЕДАТА
+====================================================
+Версия на Python : 3.12.10
+Изпълним файл    : E:\Projects\School\Programirane-RPP-Bonev\RPP11\.venv\Scripts\python.exe   <<<
+Базов префикс    : C:\Users\Krum\AppData\Local\Programs\Python\Python312
+Текущ префикс    : E:\Projects\School\Programirane-RPP-Bonev\RPP11\.venv   <<<
+Работна папка    : E:\Projects\School\Programirane-RPP-Bonev\RPP11
+Папка с пакети   : E:\Projects\School\Programirane-RPP-Bonev\RPP11\.venv   <<<
+Папка с пакети   : E:\Projects\School\Programirane-RPP-Bonev\RPP11\.venv\Lib\site-packages   <<<
+Брой пакети      : 7   <<<
+----------------------------------------------------
+СТАТУС: РАБОТИШ ВЪВ ВИРТУАЛНА СРЕДА.   <<<
+====================================================
+
+Извод: версията и базовият префикс са едни и същи, защото средата е
+направена от същия Python. Сменят се изпълнимият файл, текущият префикс
+и папката с пакети — затова в средата има само 7 пакета, а глобално са 212.
