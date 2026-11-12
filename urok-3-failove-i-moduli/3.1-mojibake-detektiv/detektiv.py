@@ -5,6 +5,12 @@
 """
 from pathlib import Path
 
+try:
+    import chardet
+    HAS_CHARDET = True
+except ImportError:
+    HAS_CHARDET = False
+
 HERE = Path(__file__).parent
 FILES = ["tekst_a.txt", "tekst_b.txt", "tekst_c.txt", "tekst_d.txt"]
 ENCODINGS = ["utf-8", "cp1251", "utf-16", "latin-1"]
@@ -59,6 +65,17 @@ def guess_encoding(path):
     return None
 
 
+def chardet_guess(path) -> tuple:
+    """Догадката на пакета chardet: (кодиране, увереност от 0 до 1).
+
+    chardet работи с байтове, затова файлът се отваря в двоичен режим
+    ("rb") — там няма кодиране, което да се указва.
+    """
+    with open(path, "rb") as f:
+        result = chardet.detect(f.read())
+    return result["encoding"], result["confidence"]
+
+
 def main() -> None:
     """Показва как изглежда всеки файл в четирите кодирания и догадката за него."""
     for name in FILES:
@@ -72,6 +89,12 @@ def main() -> None:
             except UnicodeError as err:     # utf-16 без BOM в началото
                 print(f"  {enc:8s} не става: {err}")
         print(f"  ДОГАДКА: {guess_encoding(HERE / name)}")
+        if HAS_CHARDET:
+            encoding, confidence = chardet_guess(HERE / name)
+            print(f"  CHARDET: {encoding} (увереност {confidence:.2f})")
+    if not HAS_CHARDET:
+        print("\nПакетът 'chardet' не е инсталиран — сравнението е пропуснато.")
+        print("Направи:  python -m pip install -r requirements.txt  (в корена)")
 
 
 if __name__ == "__main__":
@@ -110,3 +133,25 @@ if __name__ == "__main__":
 # 6. Текст без нито една българска буква (само цифри или английски) дава
 #    None, въпреки че се чете правилно. А български текст с една чужда
 #    дума като „café“ или „España“ се отхвърля заради é и ñ в SUSPICIOUS.
+#
+# РАЗШИРЕНИЕ: сравнение с пакета chardet (версия 7.7.0)
+#
+#   файл          моята догадка    chardet (увереност)
+#   tekst_a.txt   cp1251           Windows-1251 (0.61)
+#   tekst_b.txt   utf-8            utf-8        (0.99)
+#   tekst_c.txt   utf-16           UTF-16       (1.00)
+#   tekst_d.txt   utf-8            UTF-8-SIG    (1.00)
+#
+# За a, b и c двете догадки съвпадат (Windows-1251 е другото име на cp1251).
+# Разликата е при tekst_d.txt: chardet гледа първите байтове, вижда BOM
+# (EF BB BF) и казва UTF-8-SIG, а моят метод изобщо не познава това
+# кодиране и оставя ﻿ в началото на текста.
+#
+# Другата разлика е в подхода. Моят метод отговаря с „да“ или „не“ и връща
+# първото кодиране, което мине проверката. chardet работи с байтовете, а не
+# с прочетения текст: сравнява колко често се срещат байтовете и двойките
+# букви с типичното за всеки език и връща най-вероятното кодиране заедно с
+# увереност. Затова при BOM е сигурен на 1.00, а при cp1251 — само на 0.61:
+# еднобайтовите кирилски кодирания си приличат и той честно казва, че не е
+# сигурен. Моят метод в същата ситуация (точка 1 по-горе) греши, без да
+# подозира.
